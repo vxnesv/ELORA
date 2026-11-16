@@ -24,6 +24,8 @@ Em **Actions > Oracle validation > Run workflow**, marque `apply_schema_migratio
 
 Em seguida, o job conecta como `ELORA_RUNTIME` e executa `09_runtime_validation.sql`. Esse teste exige que chamadas aos pacotes funcionem e que o acesso SQL direto às tabelas seja negado.
 
+Além do código de saída do SQLcl, o workflow exige as mensagens `VALIDACAO CUIDADO OK` e `VALIDACAO RUNTIME OK`. Isso impede que uma falha de conexão seja interpretada como sucesso pelo runner.
+
 O script de validação sempre termina em `ROLLBACK`. A criação das tabelas e do pacote é DDL e permanece no banco.
 
 ## Execuções seguintes

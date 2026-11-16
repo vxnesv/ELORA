@@ -74,7 +74,7 @@ jobs:
             migration_command="@database/oracle/05_connected_care.sql"
           fi
 
-          sql -S /nolog <<SQL
+          sql -S /nolog <<SQL | tee "$RUNNER_TEMP/owner-validation.log"
           WHENEVER OSERROR EXIT FAILURE ROLLBACK
           WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK
           SET ECHO OFF
@@ -86,6 +86,7 @@ jobs:
           @database/oracle/07_connected_care_validation.sql
           EXIT SUCCESS
           SQL
+          grep -q 'VALIDACAO CUIDADO OK' "$RUNNER_TEMP/owner-validation.log"
 
       - name: Validate restricted runtime user
         shell: bash
@@ -97,7 +98,7 @@ jobs:
           test -n "$ORACLE_RUNTIME_PASSWORD"
           test -n "$ORACLE_DB_SERVICE"
 
-          sql -S /nolog <<SQL
+          sql -S /nolog <<SQL | tee "$RUNNER_TEMP/runtime-validation.log"
           WHENEVER OSERROR EXIT FAILURE ROLLBACK
           WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK
           SET ECHO OFF
@@ -107,6 +108,7 @@ jobs:
           @database/oracle/09_runtime_validation.sql
           EXIT SUCCESS
           SQL
+          grep -q 'VALIDACAO RUNTIME OK' "$RUNNER_TEMP/runtime-validation.log"
 
       - name: Remove wallet files
         if: always()
