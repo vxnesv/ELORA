@@ -11,7 +11,7 @@ Crie o Environment `oracle-validation` no repositório e adicione:
 - `ORACLE_DB_SERVICE`: alias `_low` existente no `tnsnames.ora`, por exemplo `elora_low`.
 - `ORACLE_WALLET_B64`: conteúdo Base64 do arquivo `Wallet_ELORA.zip`.
 
-Não use `ADMIN` no workflow. A concessão contida em `08_connected_care_runtime_grant.sql` continua sendo executada manualmente como `ADMIN`.
+Não use `ADMIN` no workflow. Como proprietário do pacote, `ELORA_APP` executa a concessão mínima contida em `08_connected_care_runtime_grant.sql`; `ELORA_RUNTIME` não recebe acesso direto às tabelas.
 
 ## Primeira execução
 
@@ -19,7 +19,8 @@ Em **Actions > Oracle validation > Run workflow**, marque `apply_schema_migratio
 
 1. `05_connected_care.sql` para criar as tabelas;
 2. `06_connected_care_routines.sql` para criar ou atualizar `ELORA_CARE_API`;
-3. `07_connected_care_validation.sql` para testar idempotência, resumos e isolamento entre usuários.
+3. `08_connected_care_runtime_grant.sql` para conceder somente execução ao usuário da API;
+4. `07_connected_care_validation.sql` para testar idempotência, resumos e isolamento entre usuários.
 
 O script de validação sempre termina em `ROLLBACK`. A criação das tabelas e do pacote é DDL e permanece no banco.
 
