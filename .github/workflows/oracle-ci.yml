@@ -1,0 +1,96 @@
+name: Oracle validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply_schema_migration:
+        description: Apply migration 05 before compiling and validating
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: elora-oracle-database
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate connected care schema
+    runs-on: ubuntu-latest
+    environment: oracle-validation
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install Oracle SQLcl
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location \
+            https://download.oracle.com/otn_software/java/sqldeveloper/sqlcl-latest.zip \
+            --output "$RUNNER_TEMP/sqlcl.zip"
+          unzip -q "$RUNNER_TEMP/sqlcl.zip" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/sqlcl/bin" >> "$GITHUB_PATH"
+
+      - name: Configure Autonomous Database wallet
+        shell: bash
+        env:
+          ORACLE_WALLET_B64: ${{ secrets.ORACLE_WALLET_B64 }}
+        run: |
+          set -euo pipefail
+          test -n "$ORACLE_WALLET_B64"
+          mkdir -p "$RUNNER_TEMP/oracle-wallet"
+          printf '%s' "$ORACLE_WALLET_B64" | base64 --decode \
+            > "$RUNNER_TEMP/oracle-wallet.zip"
+          unzip -q "$RUNNER_TEMP/oracle-wallet.zip" \
+            -d "$RUNNER_TEMP/oracle-wallet"
+          echo "TNS_ADMIN=$RUNNER_TEMP/oracle-wallet" >> "$GITHUB_ENV"
+
+      - name: Apply migration, compile package and validate
+        shell: bash
+        env:
+          ORACLE_DB_USER: ${{ secrets.ORACLE_DB_USER }}
+          ORACLE_DB_PASSWORD: ${{ secrets.ORACLE_DB_PASSWORD }}
+          ORACLE_DB_SERVICE: ${{ secrets.ORACLE_DB_SERVICE }}
+          APPLY_SCHEMA_MIGRATION: ${{ inputs.apply_schema_migration }}
+        run: |
+          set -euo pipefail
+          test -n "$ORACLE_DB_USER"
+          test -n "$ORACLE_DB_PASSWORD"
+          test -n "$ORACLE_DB_SERVICE"
+
+          migration_command=""
+          if [ "$APPLY_SCHEMA_MIGRATION" = "true" ]; then
+            migration_command="@database/oracle/05_connected_care.sql"
+          fi
+
+          sql -S /nolog <<SQL
+          WHENEVER OSERROR EXIT FAILURE ROLLBACK
+          WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK
+          SET ECHO OFF
+          SET FEEDBACK ON
+          SET SERVEROUTPUT ON
+          CONNECT ${ORACLE_DB_USER}/"${ORACLE_DB_PASSWORD}"@${ORACLE_DB_SERVICE}
+          ${migration_command}
+          @database/oracle/06_connected_care_routines.sql
+          @database/oracle/07_connected_care_validation.sql
+          EXIT SUCCESS
+          SQL
+
+      - name: Remove wallet files
+        if: always()
+        shell: bash
+        run: |
+          rm -rf "$RUNNER_TEMP/oracle-wallet" \
+            "$RUNNER_TEMP/oracle-wallet.zip"
+
