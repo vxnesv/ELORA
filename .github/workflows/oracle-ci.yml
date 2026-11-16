@@ -83,7 +83,6 @@ jobs:
           CONNECT ${ORACLE_DB_USER}/"${ORACLE_DB_PASSWORD}"@${ORACLE_DB_SERVICE}
           ${migration_command}
           @database/oracle/06_connected_care_routines.sql
-          @database/oracle/08_connected_care_runtime_grant.sql
           @database/oracle/07_connected_care_validation.sql
           EXIT SUCCESS
           SQL

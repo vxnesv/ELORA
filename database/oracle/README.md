@@ -34,7 +34,7 @@ Para a parte 4, execute conectado como `ELORA_APP`, nesta ordem:
 
 `05_connected_care.sql` acrescenta o perfil opcional de cuidado, observações importadas, refeições/insulina, agenda de medicamentos e ciclo menstrual. Ele não deve ser executado novamente após criar as tabelas. O pacote `ELORA_CARE_API` não executa `COMMIT`; a transação pertence ao backend. A validação usa dados sintéticos, verifica idempotência e isolamento entre dois usuários e termina em `ROLLBACK`.
 
-Por último, ainda como `ELORA_APP`, execute `08_connected_care_runtime_grant.sql` para permitir que `ELORA_RUNTIME` execute somente o novo pacote. O workflow GitHub Actions já executa essa concessão após recompilar `ELORA_CARE_API`.
+Por último, conectado como `ADMIN`, execute `08_connected_care_runtime_grant.sql` para permitir que `ELORA_RUNTIME` execute somente o novo pacote. O workflow não armazena credenciais administrativas.
 
 ## Conexão da API
 
