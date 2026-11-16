@@ -87,6 +87,27 @@ jobs:
           EXIT SUCCESS
           SQL
 
+      - name: Validate restricted runtime user
+        shell: bash
+        env:
+          ORACLE_RUNTIME_PASSWORD: ${{ secrets.ORACLE_RUNTIME_PASSWORD }}
+          ORACLE_DB_SERVICE: ${{ secrets.ORACLE_DB_SERVICE }}
+        run: |
+          set -euo pipefail
+          test -n "$ORACLE_RUNTIME_PASSWORD"
+          test -n "$ORACLE_DB_SERVICE"
+
+          sql -S /nolog <<SQL
+          WHENEVER OSERROR EXIT FAILURE ROLLBACK
+          WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK
+          SET ECHO OFF
+          SET FEEDBACK ON
+          SET SERVEROUTPUT ON
+          CONNECT ELORA_RUNTIME/"${ORACLE_RUNTIME_PASSWORD}"@${ORACLE_DB_SERVICE}
+          @database/oracle/09_runtime_validation.sql
+          EXIT SUCCESS
+          SQL
+
       - name: Remove wallet files
         if: always()
         shell: bash

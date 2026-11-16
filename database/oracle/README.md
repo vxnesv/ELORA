@@ -36,6 +36,8 @@ Para a parte 4, execute conectado como `ELORA_APP`, nesta ordem:
 
 Por último, conectado como `ADMIN`, execute `08_connected_care_runtime_grant.sql` para permitir que `ELORA_RUNTIME` execute somente o novo pacote. O workflow não armazena credenciais administrativas.
 
+`09_runtime_validation.sql`, conectado como `ELORA_RUNTIME`, comprova que o backend consegue chamar os pacotes e que uma consulta direta às tabelas é bloqueada. O teste também termina em `ROLLBACK`.
+
 ## Conexão da API
 
 Descompacte o wallet em uma pasta privada da máquina e informe à API por variáveis de ambiente. Não coloque arquivos `.sso`, `.p12`, `.pem`, `.jks`, senhas ou credenciais Firebase dentro deste projeto.
