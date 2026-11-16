@@ -1,5 +1,8 @@
 # ELORA
 
+[![Flutter CI](https://github.com/vxnesv/ELORA/actions/workflows/flutter-ci.yml/badge.svg)](https://github.com/vxnesv/ELORA/actions/workflows/flutter-ci.yml)
+[![Oracle validation](https://github.com/vxnesv/ELORA/actions/workflows/oracle-ci.yml/badge.svg)](https://github.com/vxnesv/ELORA/actions/workflows/oracle-ci.yml)
+
 Aplicativo Flutter de inteligência preventiva que ajuda pessoas a compreender informações do cotidiano, organizar ações de cuidado e encontrar orientações oficiais para situações de risco.
 
 ## Funcionalidades principais

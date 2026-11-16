@@ -6,8 +6,9 @@ O Oracle Autonomous AI Database armazena os dados funcionais da primeira versão
 
 - Banco: `ELORA`, criado no Oracle Autonomous AI Database.
 - Schema da aplicação: `ELORA_APP`.
-- Oito tabelas e o pacote `ELORA_API` foram criados.
-- A validação transacional foi executada com sucesso no ambiente remoto.
+- Treze tabelas e os pacotes `ELORA_API` e `ELORA_CARE_API` foram criados.
+- As validações transacionais do modelo inicial e do cuidado conectado foram executadas com sucesso no ambiente remoto.
+- `ELORA_RUNTIME` possui somente `CREATE SESSION` e execução dos dois pacotes; o teste confirmou que seu acesso direto às tabelas é bloqueado.
 - O wallet deve permanecer fora do repositório e nunca ser enviado ao GitHub.
 
 ## Ordem de execução
